@@ -1,0 +1,992 @@
+
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Portaria 07 - Controle de Chassi</title>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cor-fundo: #0b1d30;
+  --cor-caixa: #1c2b3d;
+  --cor-primaria: #00d2ff;
+  --cor-hover: #1a4ed8;
+  --cor-texto: #ffffff;
+  --cor-alerta: #f0ad4e;
+  --cor-erro: #ff4444;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 1rem;
+  font-family: 'Orbitron', sans-serif;
+  background-color: var(--cor-fundo);
+  background-image: radial-gradient(circle at top left, #1b2735, #090a0f);
+  color: var(--cor-texto);
+}
+.container {
+  max-width: 920px;
+  margin: auto;
+  background: rgba(28,43,61,0.6);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(0,212,255,0.15);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0,255,255,0.15), inset 0 0 10px rgba(0,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: fadeIn 0.6s ease-in-out;
+}
+h1 {
+  font-size: 1.8rem;
+  letter-spacing: 6px;
+  background: linear-gradient(90deg, var(--cor-primaria), #3a7bd5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  font-family: 'Orbitron', sans-serif;
+  text-shadow: 0 0 10px rgba(0,210,255,0.5);
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cor-primaria);
+  opacity: 0.85;
+  margin-bottom: 1.5rem;
+  font-family: 'Orbitron', sans-serif;
+  text-align: center;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
+  color: var(--cor-primaria);
+  opacity: 0.85;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+input, select {
+  margin-top: 0.4rem;
+  padding: 0.7rem;
+  border: 1px solid #00d2ff44;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  box-shadow: inset 0 0 8px rgba(0,210,255,0.1);
+  transition: all .2s;
+  font-family: Arial, sans-serif;
+}
+#numeroChassi {
+  padding-right: 108px;
+}
+#chassiConfirmIcon {
+  display: none;
+  position: absolute;
+  right: -32px;
+  top: 14px;
+  width: 90px;
+  height: 90px;
+  font-size: 4.5rem;
+  color: #35ff5a;
+  z-index: 10;
+  pointer-events: none;
+  background: rgba(255,255,255,0.78);
+  border-radius: 50%;
+  box-shadow: 0 0 35px 14px #26e76e99, 0 0 0 6px #57ffa755;
+  transition: opacity 0.25s, transform 0.17s;
+  opacity: 0;
+  transform: scale(0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#chassiConfirmIcon.visible {
+  display: flex;
+  opacity: 1;
+  transform: scale(1.16);
+  animation: confirmpop 0.34s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes confirmpop {
+  0% { opacity:0; transform: scale(0.5);}
+  60% { opacity:1; transform: scale(1.32);}
+  85% { transform: scale(1);}
+  100% { transform: scale(1.16);}
+}
+button {
+  background: linear-gradient(135deg, #3a7bd5, var(--cor-primaria));
+  color: #fff;
+  border: 1px solid var(--cor-primaria);
+  padding: .75rem 1.5rem;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  box-shadow: 0 0 6px var(--cor-primaria)66, 0 0 10px var(--cor-primaria)33;
+  transition: all .3s;
+  font-family: 'Orbitron', sans-serif;
+}
+button:hover {
+  background: linear-gradient(135deg, var(--cor-primaria), #3a7bd5);
+  box-shadow: 0 0 20px rgba(0,210,255,.85);
+  transform: scale(1.05);
+}
+button i { vertical-align: middle; stroke-width: 2; }
+.button-group { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; }
+.auto-save-icon {
+  text-align: right;
+  font-size: .85rem;
+  color: #55dd55;
+  font-family: Arial, sans-serif;
+}
+.info {
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+.info[aria-live] { min-height: 1.2em; }
+#tabelaContainer { display: none; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: .95rem;
+  font-family: Arial, sans-serif;
+}
+th, td {
+  border: 1px solid #2e3c51;
+  padding: .6rem;
+  text-align: center;
+  color: var(--cor-texto);
+}
+th { background: #233246; color: var(--cor-primaria); }
+@media(max-width:600px) {
+  .container { padding: 1rem; }
+  .button-group { flex-direction: column; }
+  button { width: 100%; justify-content: center; }
+  .auto-save-icon { text-align: center; margin-top: .5rem; }
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+#botoesInternos { display: none; flex-direction: column; gap: .75rem; justify-content: center; margin-bottom: 1rem; }
+
+/* ===== Melhoria Visual: Campos bloqueados + tooltip + contraste ===== */
+:root{
+  --locked-badge-bg: rgba(255,255,255,.06);
+  --locked-badge-br: 1px solid #ffffff22;
+  --tooltip-bg: rgba(0,0,0,.85);
+  --tooltip-br: 1px solid #ffffff22;
+}
+
+/* Contraste mais claro para campos editáveis */
+input:not([readonly]), select:not([disabled]), textarea:not([readonly]){
+  border-color: #00d2ff66 !important;
+  box-shadow: 0 0 0 1px #00d2ff22 inset;
+}
+
+/* Aparência consistente para bloqueados (somente leitura) */
+input[readonly], textarea[readonly]{
+  cursor: not-allowed !important;
+  opacity: .65;
+  filter: saturate(85%);
+  box-shadow: inset 0 0 0 1px #ffffff22 !important;
+}
+
+/* Badge e ícone de cadeado posicionados dentro do label */
+.lock-indicator{
+  position: absolute;
+  right: .6rem;
+  top: .2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .72rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  opacity: .8;
+  padding: .18rem .45rem;
+  background: var(--locked-badge-bg);
+  border: var(--locked-badge-br);
+  border-radius: 8px;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Tooltip estilizado */
+.has-tooltip{
+  position: relative;
+}
+.has-tooltip::after{
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 0;
+  top: calc(100% + .35rem);
+  white-space: nowrap;
+  background: var(--tooltip-bg);
+  color: #fff;
+  font-size: .8rem;
+  padding: .35rem .55rem;
+  border-radius: 8px;
+  border: var(--tooltip-br);
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+  z-index: 30;
+}
+.has-tooltip:hover::after,
+.has-tooltip:focus-within::after{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+</style>
+<style>
+:root {
+  --cor-fundo: #0b1d30;
+  --cor-caixa: #1c2b3d;
+  --cor-primaria: #00d2ff;
+  --cor-texto: #ffffff;
+  --cor-secundaria: #FFA726;
+}
+button:hover,
+.btn-primary:hover {
+  background: var(--cor-secundaria) !important;
+  box-shadow: 0 4px 12px rgba(255,167,38,0.4);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+#toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--cor-secundaria);
+  color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: slideIn 0.4s ease-out, fadeOut 0.4s ease-in 2.6s forwards;
+  pointer-events: auto;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+    /* Modal styles */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 10000; }
+    .modal-container { background: var(--cor-caixa); padding: 1.5rem; border-radius: 8px; width: 90%; max-width: 400px; box-shadow: 0 0 10px rgba(0,0,0,0.3); }
+    .modal-header { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--cor-primaria); }
+    .modal-body { margin-bottom: 1rem; color: #fff; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .btn-modal { padding: 0.5rem 1rem; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background: var(--cor-primaria); color: #000; }
+    .btn-secondary { background: var(--cor-secundaria); color: #fff; }
+</style>
+
+<style id="patch-info-green-css">
+
+/* === PATCH: valor do chassi em verde, somente o valor === */
+.info { color: #ffffff !important; } /* mantém título em amarelo */
+.info .info-value {
+  color: #00ff99 !important;
+  text-shadow: 0 0 10px rgba(0, 255, 153, 0.9), 0 0 20px rgba(0, 255, 153, 0.7) !important;
+  font-weight: 800 !important;
+}
+.info:empty { display: none !important; }
+
+</style>
+
+<style id="patch-header-compact">
+  /* Compacta o cabeçalho sem mudar o visual */
+  h1 { margin: 0 0 .25rem !important; line-height: 1.05 !important; letter-spacing: 4px !important; }
+  h2 { margin: .1rem 0 .35rem !important; line-height: 1.05 !important; }
+  h3 { margin: .1rem 0 .5rem  !important; line-height: 1.05 !important; }
+  /* Se existir container com gap (algumas telas), reduz um pouco */
+  .container { gap: .75rem !important; }
+</style>
+
+
+
+
+
+
+
+
+
+
+<style id="compact-header-v5">
+body { padding-top: 0 !important; margin-top: 0 !important; }
+
+h1 { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
+h1 img { max-width: 300px; height: auto; display: block; margin: 0 auto; }
+
+h2 { font-size: 1rem !important; margin: 0 !important; line-height: 1.05 !important; color: #ffffff !important; }
+h3 { font-size: 1.4rem !important; margin: .1rem 0 .25rem !important; line-height: 1.1 !important; }
+
+.header { text-align: center; margin: 0 !important; padding: 0 !important; }
+</style>
+
+</head>
+<body>
+<div class="container">
+<h1><img src="logo_stellantis.png" alt="Stellantis" style="max-width:180px; height:auto; display:block; margin:0 auto;"></h1>
+<h2>Segurança Patrimonial</h2>
+<h3>Controle de Veículos - Comissão de Seguro</h3>
+<label>Setor:
+  <input id="setor" type="text" value="Portaria 07" readonly tabindex="-1" inputmode="none"/>
+</label>
+<label>Turno:
+  <input id="turno" readonly tabindex="-1" inputmode="none"/>
+</label>
+<label style="position: relative;">
+  Número de chassi:
+  <input autocomplete="off" autofocus="" id="numeroChassi" style="padding-right: 108px;" type="text">
+<span id="chassiConfirmIcon"><i data-feather="check-circle"></i></span>
+</input></label>
+<label>Controlador de acesso:
+  <input id="controladorAcesso" type="text" readonly tabindex="-1" inputmode="none"/>
+</label>
+<div aria-live="polite" class="info" id="info"></div>
+<div class="auto-save-icon">💾 Salvamento automático</div>
+<div class="button-group">
+<button id="btnOutrasInfos" onclick="acessarOutrasInfos()"><i data-feather="menu"></i>Outras informações</button>
+
+<button id="btnToggleTabela" onclick="toggleTabela()"><i data-feather="eye"></i>Visualizar Tabela</button>
+<button onclick="sair()"><i data-feather="log-out"></i>Sair</button>
+</div>
+<div class="button-group" id="botoesInternos">
+<button id="btnAdicionar" onclick="adicionarItem()"><i data-feather="plus-circle"></i>Adicionar</button>
+<button id="btnDesfazer" onclick="desfazerUltimo()"><i data-feather="rotate-ccw"></i>Desfazer</button>
+<button id="btnEditarSenha" onclick="editarSenha()"><i data-feather="key"></i>Editar senha</button>
+<button id="btnFecharBotoesInternos" onclick="ocultarBotoesInternos()"><i data-feather="x"></i>Fechar</button>
+</div>
+<div id="totalVeiculos" style="font-weight:bold; color:#00d2ff; text-align:center; font-size:1.7rem; margin-top:12px;">Total de veículos: 0</div>
+<div id="tabelaContainer">
+<table id="tabelaChassi">
+<thead>
+<tr><th>Setor</th><th>Turno</th><th>Controlador de acesso</th><th>Número de chassi</th><th>Data e Hora</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+<!-- Modal Overlay -->
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal-container">
+<div class="modal-header" id="modalHeader"></div>
+<div class="modal-body" id="modalBody"></div>
+<div class="modal-footer" id="modalFooter">
+<button class="btn-modal btn-secondary" id="modalCancel">Cancelar</button>
+<button class="btn-modal btn-primary" id="modalConfirm">OK</button>
+</div>
+</div>
+</div>
+<script>
+  // Chave de armazenamento específica da página
+  const storageKey = 'tabelaComissaoSeguro';
+</script>
+<script>
+async function showModal(message) {
+  return new Promise(resolve => {
+    document.getElementById('modalHeader').textContent = '';
+    document.getElementById('modalBody').textContent = message;
+    document.getElementById('modalCancel').style.display = 'none';
+    document.getElementById('modalConfirm').textContent = 'OK';
+    document.getElementById('modalConfirm').onclick = () => {
+      document.getElementById('modalOverlay').style.display = 'none';
+      resolve();
+    };
+    document.getElementById('modalOverlay').style.display = 'flex';
+  });
+}
+async function showConfirm(message) {
+  return new Promise(resolve => {
+    document.getElementById('modalHeader').textContent = 'Confirmação';
+    document.getElementById('modalBody').textContent = message;
+    document.getElementById('modalCancel').style.display = 'inline-block';
+    document.getElementById('modalConfirm').textContent = 'Sim';
+    document.getElementById('modalCancel').textContent = 'Não';
+    document.getElementById('modalConfirm').onclick = () => { document.getElementById('modalOverlay').style.display = 'none'; resolve(true); };
+    document.getElementById('modalCancel').onclick = () => { document.getElementById('modalOverlay').style.display = 'none'; resolve(false); };
+    document.getElementById('modalOverlay').style.display = 'flex';
+  });
+}
+async function showPrompt(message) {
+  return new Promise(resolve => {
+    document.getElementById('modalHeader').textContent = 'Entrada de dados';
+    const body = document.getElementById('modalBody');
+    body.innerHTML = `<p>${message}</p><input type="text" id="modalInput" style="width:100%; padding:0.5rem; margin-top:0.5rem; border-radius:4px; border:1px solid #ccc;">`;
+    document.getElementById('modalCancel').style.display = 'inline-block';
+    document.getElementById('modalConfirm').textContent = 'OK';
+    document.getElementById('modalConfirm').onclick = () => { const val = document.getElementById('modalInput').value; document.getElementById('modalOverlay').style.display = 'none'; resolve(val); };
+    document.getElementById('modalCancel').onclick = () => { document.getElementById('modalOverlay').style.display = 'none'; resolve(null); };
+    document.getElementById('modalOverlay').style.display = 'flex';
+  });
+}
+</script>
+<script>
+let senhaOutrasInfos = localStorage.getItem('senhaOutrasInfos') || '1234';
+let tabelaDados = [];
+function atualizarTotal() {
+  var el = document.getElementById("totalVeiculos");
+  if (el) { el.textContent = "Total de veículos: " + tabelaDados.length; }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  // ===== Melhoria Visual: aplicar cadeado, badge e tooltip nos campos bloqueados =====
+  function enhanceLockedField(inputEl, tooltipText){
+    if(!inputEl) return;
+    // garantir classe de tooltip no label
+    const label = inputEl.closest('label');
+    if(label){
+      label.style.position = 'relative';
+      label.classList.add('has-tooltip');
+      if(!label.getAttribute('data-tooltip')){
+        label.setAttribute('data-tooltip', tooltipText || 'Definido no login');
+      }
+      // inserir indicador com ícone de cadeado
+      if(!label.querySelector('.lock-indicator')){
+        const badge = document.createElement('span');
+        badge.className = 'lock-indicator';
+        badge.innerHTML = '<i data-feather="lock"></i>';
+        label.appendChild(badge);
+      }
+    }
+  }
+  // aplicar melhorias visuais nas entradas bloqueadas
+  enhanceLockedField(document.getElementById('turno'), 'Definido no login');
+  enhanceLockedField(document.getElementById('controladorAcesso'), 'Definido no login');
+  enhanceLockedField(document.getElementById('setor'), 'Valor fixo da página');
+  // Opcional: se existir "setor" readonly, apenas visual (não altera regras de bloqueio)
+  (function(){
+    const setor = document.getElementById('setor');
+    if(setor && setor.hasAttribute('readonly')){
+      enhanceLockedField(setor, 'Valor fixo da página');
+    }
+  })();
+  // como adicionamos novos ícones dinamicamente, substituir feather novamente
+  if (window.feather && typeof feather.replace === 'function') feather.replace();
+
+  feather.replace();
+  tabelaDados = JSON.parse(localStorage.getItem(storageKey)) || [];
+  function salvarLocal(){ localStorage.setItem(storageKey, JSON.stringify(tabelaDados)); }
+  function atualizarTabela() {
+  atualizarTotal();
+    const tbody = document.querySelector("#tabelaChassi tbody");
+    tbody.innerHTML = "";
+    tabelaDados.slice().reverse().forEach(item => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${item.setor}</td><td>${item.turno}</td><td>${item.controlador}</td><td>${item.chassi}</td><td>${item.dataHora}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  window.adicionarItem = async () => {
+  atualizarTotal();
+    const info = document.getElementById("info");
+    const inputChassi = document.getElementById("numeroChassi");
+    const iconConfirm = document.getElementById("chassiConfirmIcon");
+    const chassi = inputChassi.value.trim();
+    const controlador = document.getElementById("controladorAcesso").value.trim();
+    if (!chassi) {
+      info.textContent = "Digite o número de chassi.";
+      inputChassi.focus();
+      return;
+    }
+    if (!controlador) {
+      info.textContent = "Preencha o controlador de acesso.";
+      document.getElementById("controladorAcesso").focus();
+      return;
+    }
+    
+    // === BLOQUEIO DE DUPLICIDADE ===
+    const norm = s => (s||"").replace(/\s+/g,'').toUpperCase();
+    const existe = tabelaDados.some(item => norm(item.chassi) === norm(chassi));
+    if (existe) {
+      await showModal(`Já existe o número de chassi "${chassi}"`);
+      info.textContent = `Chassi duplicado: ${chassi}`;
+      if (typeof flashInvalid === 'function') flashInvalid(inputChassi);
+      else { inputChassi.focus(); inputChassi.select?.(); }
+      return;
+    }
+    // ===============================
+tabelaDados.push({
+      setor: document.getElementById("setor").value,
+      turno: document.getElementById("turno").value,
+      controlador: controlador,
+      chassi: chassi,
+      dataHora: new Date().toLocaleString("pt-BR")
+    });
+    salvarLocal();
+    atualizarTabela();
+    inputChassi.value = "";
+    info.textContent = "Chassi adicionado - " + chassi;
+    iconConfirm.classList.add("visible");
+    feather.replace();
+    setTimeout(() => { iconConfirm.classList.remove("visible"); }, 1500);
+    inputChassi.focus();
+  };
+
+  document.getElementById("numeroChassi").addEventListener("keypress", e => {
+    if (e.key === "Enter") {
+      window.adicionarItem();
+    }
+  });
+
+  window.desfazerUltimo = async () => {
+  atualizarTotal();
+    const info = document.getElementById("info");
+    if (!tabelaDados.length) { await showModal("Nada para desfazer."); return; }
+    tabelaDados.pop();
+    salvarLocal();
+    atualizarTabela();
+    info.textContent = "Último item removido.";
+  };
+  window.finalizarTurno = async () => {
+  atualizarTotal();
+    const info = document.getElementById("info");
+    if (!tabelaDados.length) { await showModal("Nada para exportar."); return; }
+    if (!await showConfirm("Deseja finalizar o turno e exportar a planilha?")) return;
+    try {
+      const ExcelJS = window.ExcelJS;
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("ControleChassi");
+      worksheet.columns = [
+        { header: 'Setor', key: 'setor', width: 18 },
+        { header: 'Turno', key: 'turno', width: 12 },
+        { header: 'Controlador de acesso', key: 'controlador', width: 24 },
+        { header: 'Número de chassi', key: 'chassi', width: 22 },
+        { header: 'Data e Hora', key: 'dataHora', width: 22 }
+      ];
+      tabelaDados.slice().reverse().forEach(dado => worksheet.addRow(dado));
+      worksheet.protect('1234', { selectLockedCells: true, selectUnlockedCells: false, formatCells: false, formatColumns: false, formatRows: false, insertColumns: false, insertRows: false, insertHyperlinks: false, deleteColumns: false, deleteRows: false, sort: false, autoFilter: false, pivotTables: false, objects: false, scenarios: false });
+      worksheet.eachRow(row => { row.protection = { locked: true }; });
+      const buffer = await workbook.xlsx.writeBuffer();
+      AppUI.setProgress(90,'Salvando arquivo');
+      writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      saveAs(blob, `ControleChassi_${new Date().toISOString().slice(0,19).replace(/[T:]/g,"_")}.xlsx`);
+      tabelaDados.length = 0; salvarLocal(); atualizarTabela();
+      info.textContent = "Turno finalizado e planilha protegida gerada.";
+    } catch (e) {
+      info.textContent = "Erro ao gerar planilha.";
+    }
+  };
+  window.toggleTabela = () => {
+    const container = document.getElementById("tabelaContainer");
+    const btn = document.getElementById("btnToggleTabela");
+    const isHidden = !container.style.display || container.style.display === "none";
+    container.style.display = isHidden ? "block" : "none";
+    btn.innerHTML = isHidden
+      ? '<i data-feather="eye-off"></i>Ocultar Tabela'
+      : '<i data-feather="eye"></i>Visualizar Tabela';
+    feather.replace();
+  };
+  document.getElementById('numeroChassi').value = localStorage.getItem('draftChassi') || '';
+  document.getElementById('controladorAcesso').value = localStorage.getItem("usuario") + " / " + localStorage.getItem("registro");
+  atualizarTabela();
+  ocultarBotoesInternos();
+
+  if (tabelaDados.length) { await showModal('Dados restaurados.'); }
+});
+window.addEventListener('beforeunload', () => {
+  localStorage.setItem('draftChassi', document.getElementById('numeroChassi').value);
+  localStorage.setItem('draftControlador', document.getElementById('controladorAcesso').value);
+});
+window.sair = async () => {
+  if (await showConfirm("Tem certeza que deseja sair?")) {
+    window.location.href = 'interface_principal.html';
+  }
+};
+
+async function acessarOutrasInfos() {
+  const senha = await showPrompt('Digite a senha de 4 dígitos:');
+  if (senha === senhaOutrasInfos) {
+    document.getElementById('botoesInternos').style.display = 'flex';
+  } else {
+    document.getElementById('botoesInternos').style.display = 'none';
+    await showModal('Senha incorreta.');
+  }
+}
+function ocultarBotoesInternos() {
+  document.getElementById('botoesInternos').style.display = 'none';
+}
+async function editarSenha() {
+  const atual = await showPrompt('Digite a senha atual:');
+  if (atual !== senhaOutrasInfos) {
+    await showModal('Senha incorreta!');
+    return;
+  }
+  const nova = await showPrompt('Digite a nova senha de 4 dígitos:');
+  if (nova && nova.length === 4 && /^\d+$/.test(nova)) {
+    senhaOutrasInfos = nova;
+    localStorage.setItem('senhaOutrasInfos', nova);
+    await showModal('Senha alterada com sucesso!');
+    ocultarBotoesInternos();
+  } else {
+    await showModal('Senha inválida!');
+  }
+}
+</script>
+<script>
+function showToast(message, duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.addEventListener('animationend', () => toast.remove());
+    toast.style.animation = 'fadeOut 0.4s ease-in forwards';
+  }, duration);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      // substituir lógica real aqui
+      const sucesso = true; // ou false conforme validação
+      if (sucesso) {
+        showToast('Ação realizada com sucesso!');
+      } else {
+        showToast('Ocorreu um erro. Tente novamente.');
+      }
+    });
+  });
+});
+</script>
+
+<script>
+(function(){
+  function getEl(id){ return document.getElementById(id); }
+  function saveState(){
+    try{
+      const state = {
+        setor: getEl('setor') ? getEl('setor').value : null,
+        turno: getEl('turno') ? getEl('turno').value : null,
+        numeroChassi: getEl('numeroChassi') ? getEl('numeroChassi').value : null,
+        controladorAcesso: getEl('controladorAcesso') ? getEl('controladorAcesso').value : null,
+        tabela: (function(){ try{ return JSON.parse(localStorage.getItem('tabelaChassi'))||[]; }catch(e){return []} })()
+      };
+      localStorage.setItem('controle_industrializacao_estado', JSON.stringify(state));
+      const ico = document.querySelector('.auto-save-icon');
+      if (ico) { ico.textContent = '💾 Salvamento automático'; }
+    }catch(e){ console.warn('Falha ao salvar estado:', e); }
+  }
+  function restoreState(){
+    try{
+      const raw = localStorage.getItem('controle_industrializacao_estado');
+      if (!raw) return;
+      const state = JSON.parse(raw);
+      if (state.setor && getEl('setor')) getEl('setor').value = state.setor;
+      if (state.turno && getEl('turno')) {
+        const sel = getEl('turno');
+        const exists = Array.from(sel.options).some(o => (o.value===state.turno||o.text===state.turno));
+        if(!exists){ const opt=document.createElement('option'); opt.value=state.turno; opt.textContent=state.turno; sel.appendChild(opt); }
+        sel.value = state.turno;
+      }
+      if (state.numeroChassi && getEl('numeroChassi')) getEl('numeroChassi').value = state.numeroChassi;
+      if (state.controladorAcesso && getEl('controladorAcesso')) getEl('controladorAcesso').value = state.controladorAcesso;
+      if (Array.isArray(state.tabela) && state.tabela.length && !localStorage.getItem('tabelaChassi')) {
+        localStorage.setItem('tabelaChassi', JSON.stringify(state.tabela));
+      }
+    }catch(e){ console.warn('Falha ao restaurar estado:', e); }
+  }
+  window.addEventListener('beforeunload', saveState);
+  document.addEventListener('input', function(e){
+    const id = e.target && e.target.id;
+    if (['setor','turno','numeroChassi','controladorAcesso'].includes(id)) {
+      clearTimeout(window.__save_debounce);
+      window.__save_debounce = setTimeout(saveState, 200);
+    }
+  });
+  document.addEventListener('DOMContentLoaded', function(){
+    restoreState();
+    ['btnAdicionar','btnDesfazer','btnEditarSenha','btnFecharBotoesInternos','btnToggleTabela','btnOutrasInfos'].forEach(id=>{
+      const b = document.getElementById(id); if (b) b.addEventListener('click', saveState);
+    });
+  });
+  const oldSair = window.sair;
+  window.sair = async () => {
+    try {
+      if (typeof oldSair === 'function') { return await oldSair(); }
+    } catch(e) { console.warn(e); }
+    if (typeof showConfirm === 'function') {
+      if (await showConfirm('Tem certeza que deseja sair?')) {
+        window.location.href = 'interface_principal.html';
+      }
+    } else {
+      if (confirm('Tem certeza que deseja sair?')) {
+        window.location.href = 'interface_principal.html';
+      }
+    }
+  };
+})();
+</script>
+<script>
+
+// === Salvamento automático de todos os campos ===
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form') || document.body;
+  // Restaurar dados
+  const savedData = JSON.parse(localStorage.getItem('controleVeiculosData') || '{}');
+  Object.keys(savedData).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = savedData[id];
+  });
+  // Salvar automático
+  form.addEventListener('input', function(e) {
+    const inputs = form.querySelectorAll('input, select, textarea');
+    const data = {};
+    inputs.forEach(inp => {
+      if (inp.id) data[inp.id] = inp.value;
+    });
+    localStorage.setItem('controleVeiculosData', JSON.stringify(data));
+  });
+
+  // Botão Sair - volta para interface sem apagar dados
+  const sairBtn = document.getElementById('btnSair');
+  if (sairBtn) {
+    sairBtn.addEventListener('click', function(ev) {
+      ev.preventDefault();
+      window.location.href = 'interface_principal.html';
+    });
+  }
+});
+
+
+
+
+<script>
+// Refino de autosave: observa alterações na tabela e salva estado
+window.addEventListener('storage', function(ev){
+  if (ev && ev.key === 'tabelaChassi') {
+    try { if (typeof saveState === 'function') saveState(); } catch(e){}
+  }
+});
+</script>
+<script>
+// Helpers de exportação
+function blobDownload(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 0);
+}
+function serializeFormFields(scope){
+  const root = scope || document;
+  const data = {};
+  root.querySelectorAll('input, select, textarea').forEach(el=>{
+    const key = el.name || el.id || el.getAttribute('data-key');
+    if (!key) return;
+    if (el.type === 'checkbox') data[key] = el.checked;
+    else if (el.type === 'radio') { if (el.checked) data[key] = el.value; }
+    else data[key] = el.value;
+  });
+  return data;
+}
+function tableToArray(table){
+  if (!table) return [];
+  const rows = [];
+  const trs = table.querySelectorAll('tr');
+  trs.forEach((tr, idx)=>{
+    const cells = Array.from(tr.children).map(td=>td.innerText.trim());
+    rows.push(cells);
+  });
+  return rows;
+}
+function arrayToCSV(arr){
+  return arr.map(row => row.map(v => {
+    if (v == null) return '';
+    const s = String(v).replace(/"/g,'""');
+    return /[",\n]/.test(s) ? `"${s}"` : s;
+  }).join(',')).join('\n');
+}
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var turnoSalvo = localStorage.getItem('turno');
+    var turnosValidos = ['Alpha', 'Bravo', 'Charlie', 'Delta'];
+    if (turnoSalvo && turnosValidos.includes(turnoSalvo)) {
+      var campoTurno = document.getElementById('turno');
+      if (campoTurno) campoTurno.value = turnoSalvo;
+    } else {
+      console.warn('Turno inválido ou não definido:', turnoSalvo);
+    }
+  } catch(e) {
+    console.warn('Erro ao carregar turno do localStorage:', e);
+  }
+});
+</script>
+
+<style id="patch-visual-inline-hidden">
+
+/* === PATCH VISUAL INLINE (com info condicional) === */
+#chassiConfirmIcon {
+  position: absolute !important;
+  right: -40px !important;   /* aparece ao lado direito do input */
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 60px !important;
+  height: 60px !important;
+  font-size: 2.5rem !important;
+  color: #00ff99 !important;
+  background: rgba(0,0,0,0.45) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 20px #00ff99aa !important;
+  overflow: hidden !important;
+}
+#chassiConfirmIcon::before,
+#chassiConfirmIcon::after {
+  content: "" !important;
+  position: absolute !important;
+  border: 2px solid #00ff99 !important;
+  border-radius: 50% !important;
+  animation: ripple 1.8s infinite !important;
+}
+#chassiConfirmIcon::before { width: 100% !important; height: 100% !important; }
+#chassiConfirmIcon::after  { width: 130% !important; height: 130% !important; animation-delay: .9s !important; }
+
+@keyframes ripple {
+  from { transform: scale(0.6); opacity: 1; }
+  to   { transform: scale(1.6); opacity: 0; }
+}
+
+/* Destaque do último chassi */
+.info {
+  font-weight: bold !important;
+  text-align: center !important;
+  color: #ffffff !important;        
+  font-size: 2.2rem !important;     
+  text-shadow: 0 0 10px rgba(255, 213, 79, 0.9),
+               0 0 20px rgba(255, 213, 79, 0.7) !important; 
+  background: rgba(0,0,0,0.45) !important;
+  padding: 0.6rem 1rem !important;
+  border-radius: 10px !important;
+  display: inline-block !important;
+  margin-top: 0.5rem !important;
+}
+
+/* Ocultar quando não há número de chassi */
+.info:empty {
+  display: none !important;
+}
+
+</style>
+
+<script id="patch-info-value-green">
+(function(){
+  function wrapInfoValue(node){
+    if(!node) return;
+    // Evita reprocessar se já houver span
+    if (node.querySelector && node.querySelector('.info-value')) return;
+    var txt = (node.textContent || '').trim();
+    if(!txt) { node.innerHTML=''; return; }
+    // Caso padrão: "Último chassi: ABC123" => mantém título e colore apenas o valor
+    var idx = txt.lastIndexOf(':');
+    if(idx !== -1 && idx < txt.length - 1){
+      var titulo = txt.slice(0, idx + 1);
+      var valor  = txt.slice(idx + 1).trim();
+      node.innerHTML = titulo + ' <span class="info-value">' + valor + '</span>';
+      return;
+    }
+    // Sem título com ":", tenta separar por espaço; mantém primeiro token como título se pareça com palavra
+    var m = txt.match(/^(.*?)(\s+)([\w\-\.]+)$/);
+    if(m){
+      node.innerHTML = (m[1] || '') + m[2] + '<span class="info-value">' + (m[3] || '') + '</span>';
+      return;
+    }
+    // Fallback: apenas números em verde dentro do texto
+    node.innerHTML = txt.replace(/(\d+)/g, '<span class="info-value">$1</span>');
+  }
+
+  function setupObserver(el){
+    if(!el) return;
+    // Observa mudanças de texto para re-aplicar o wrap quando o app atualizar o conteúdo
+    var obs = new MutationObserver(function(){
+      wrapInfoValue(el);
+    });
+    obs.observe(el, { childList: true, characterData: true, subtree: true });
+    // Primeira aplicação
+    wrapInfoValue(el);
+  }
+
+  // Espera DOM e aplica em todos os elementos .info encontrados
+  function init(){
+    var infos = document.querySelectorAll('.info');
+    infos.forEach(setupObserver);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<script>
+  function flashInvalid(el){
+    el.classList.remove('shake');
+    void el.offsetWidth;
+    el.classList.add('input-error','shake');
+    el.focus();
+    if (el.select) el.select();
+    const clear = ()=> el.classList.remove('input-error');
+    el.addEventListener('input', clear, { once: true });
+    setTimeout(()=> el.classList.remove('shake'), 450);
+  }
+</script>
+
+
+
+</body>
+</html>
