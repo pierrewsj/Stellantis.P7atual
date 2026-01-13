@@ -1,0 +1,552 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>Stellantis - Menu</title><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/><style>
+    :root { --cor-fundo:#0b1d30; --cor-caixa:#1c2b3d; --cor-primaria:#00d2ff; --cor-secundaria:#FFA726; --cor-texto:#ffffff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Orbitron',sans-serif; background-color:var(--cor-fundo); background-image:radial-gradient(circle at top left,#1b2735,#090a0f); color:var(--cor-texto); padding:1rem; display:flex; justify-content:center; align-items:center; min-height:100vh; }
+    .container { max-width:400px; width:90%; background:rgba(28,43,61,0.95); padding:2rem; border-radius:20px; box-shadow:0 0 30px rgba(0,255,255,0.15), inset 0 0 10px rgba(0,255,255,0.05); backdrop-filter:blur(10px); animation:fadeInUp .6s ease-in-out; text-align:center; }
+    h1 { font-size:1.8rem; letter-spacing:6px; background:linear-gradient(90deg,var(--cor-primaria),#3a7bd5); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; text-shadow:0 0 10px rgba(0,210,255,0.5); margin-bottom:.5rem; }
+    .botoes { display:flex; flex-direction:column; gap:1rem; }
+    .botao { background:linear-gradient(135deg,#3a7bd5,var(--cor-primaria)); color:var(--cor-texto); border:1px solid var(--cor-primaria); padding:.75rem 1.5rem; border-radius:14px; font-size:1rem; font-weight:600; cursor:pointer; box-shadow:0 0 6px rgba(0,210,255,0.3); transition:all .3s; }
+    .botao:hover { transform:scale(1.03); box-shadow:0 0 10px rgba(0,210,255,0.45); }
+    .usuario { margin-top:1rem; font-size:.9rem; color:#9eefff; font-family:'Inter',sans-serif; }
+    .modal-overlay { position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+    .modal { background:var(--cor-caixa); padding:1.5rem; border-radius:12px; text-align:center; max-width:320px; box-shadow:0 0 20px rgba(0,0,0,0.3); }
+    .modal p { margin-bottom:1rem; }
+    .modal button { background:var(--cor-secundaria); border:none; padding:.5rem 1rem; border-radius:8px; font-weight:bold; color:white; cursor:pointer; }
+    @keyframes fadeInUp { from{opacity:0; transform:translateY(15px);} to{opacity:1; transform:translateY(0);} }
+</style><script src="https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js"></script><script src="https://cdn.jsdelivr.net/npm/file-saver/dist/FileSaver.min.js"></script><script>
+// Camada simples para dificultar cópia (não é segurança real)
+(function(){
+  // Bloqueia menu de contexto (botão direito)
+  document.addEventListener('contextmenu', e => e.preventDefault(), {capture:true});
+  // Bloqueia atalhos comuns (Ctrl+S, Ctrl+U, F12, Ctrl+Shift+I/J, PrintScreen tentativa)
+  document.addEventListener('keydown', function(e){
+    const k = e.key.toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (k === 'f12') { e.preventDefault(); e.stopPropagation(); return; }
+    if (ctrl && ['s','u','p','c','a','j','i'].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+    if (e.shiftKey && ctrl && ['i','j','c'].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+  }, {capture:true});
+  // Tentativa leve de detectar DevTools (falso-positivo é possível)
+  let opened = false;
+  setInterval(function(){
+    const threshold = 160; // largura/altura típica das DevTools
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
+      if (!opened){
+        opened = true;
+        console.warn('DevTools detectado. Algumas ações podem ser limitadas.');
+      }
+    }
+  }, 1200);
+})();
+</script>
+
+
+<style id="patch-header-compact">
+  h1 { margin: 0 0 .25rem !important; line-height: 1.05 !important; letter-spacing: 4px !important; }
+  h2 { margin: .1rem 0 .35rem !important; line-height: 1.05 !important; }
+  h3 { margin: .1rem 0 .5rem  !important; line-height: 1.05 !important; }
+  .container { gap: .75rem !important; }
+</style>
+<style id="patch-header-inline-h2h3">
+  /* Dá mais espaço abaixo do título principal */
+  h1 {
+    margin-bottom: 0.8rem !important; /* aumenta o espaço após "STELLANTIS" */
+  }
+
+  /* h2 e h3 lado a lado, com espaço entre eles */
+  h2, h3 {
+    display: inline-block !important;
+    margin: 0 .8rem !important;   /* aumenta espaçamento lateral */
+    font-size: 1rem !important;
+    vertical-align: middle;
+  }
+
+  h3 {
+    color: var(--cor-primaria) !important;
+    opacity: .85 !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px;
+  }
+
+  /* Centraliza o conjunto h2+h3 */
+  .container > h2, .container > h3 {
+    text-align: center;
+  }
+</style>
+<style id="patch-header-spacing-after-h2h3">
+  /* Cria espaço extra entre o subtítulo (h2+h3) e os botões */
+  h2, h3 {
+    margin-bottom: 1.2rem !important;  /* aumenta o respiro antes dos botões */
+  }
+</style>
+
+
+
+
+
+
+
+<style id="compact-header-v4">
+h1 { margin: 0 !important; padding: 0 !important; line-height: 1 !important; }
+h1 img { max-width: 260px; height: auto; display: block; margin: 0 auto; }
+
+h2 { font-size: 1rem !important; margin: 0 !important; line-height: 1.05 !important; }
+h3 { font-size: 1.4rem !important; margin: .1rem 0 .25rem !important; line-height: 1.1 !important; }
+
+.header { text-align: center; margin: 0 !important; padding: 0 !important; }
+</style>
+
+
+<style id="layout-sync-v5">
+.container{max-width:360px !important;width:100% !important;margin:0 auto !important;}
+</style>
+
+<style id="layout-sync-desktop">
+  /* For desktop harmony across pages */
+  @media (min-width: 768px) {
+    .container{
+      max-width: 960px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+    }
+  }
+</style>
+</head><body><div class="container" style="max-width:360px !important;width:100% !important;margin:0 auto !important;"><h1><img src="logo_stellantis.png" alt="Stellantis" style="max-width:240px; height:auto; display:block; margin:0 auto;"></h1><h2 style="margin-bottom:1rem !important; color: var(--cor-primaria); font-size: 1.2rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; opacity: 0.85; text-align: center; font-family: 'Orbitron', sans-serif;">Segurança Patrimonial</h2><div class="botoes"><button class="botao" onclick="location.href='controle_p7_industrializacao.html'">Veículos - Industrialização</button><button class="botao" onclick="location.href='controle_p7_comissao_seguro.html'">Veículos - Comissão Seguro</button><button class="botao" onclick="location.href='controle_p7_qualidade.html'">Veículos - Qualidade / CI</button><button class="botao" onclick="location.href='controle_p7_faturados_expedidos.html'">Veículos - Faturados / Expedidos</button><button class="botao" onclick="trocarUsuario()">Trocar usuário</button><button class="botao" onclick="window.finalizarTurno()">Finalizar turno</button></div><div class="usuario" id="usuarioExibido"></div></div><div class="modal-overlay" id="appModalOverlay"><div class="modal" id="appModalBox" style="animation: fadeInUp .2s ease;"><h3 id="appModalTitle" style="margin-top:0;margin-bottom:.5rem;">Aviso</h3><p id="appModalMsg">Mensagem</p><div style="display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;"><button id="appModalOk">OK</button></div></div></div><div class="modal-overlay" id="confirmModalOverlay"><div class="modal" id="confirmModalBox" style="animation: fadeInUp .2s ease;"><h3 id="confirmModalTitle" style="margin-top:0;margin-bottom:.5rem;">Confirmação</h3><p id="confirmModalMsg">Tem certeza?</p><div style="display:flex;gap:.5rem;justify-content:center;margin-top:.75rem;"><button id="confirmYes">Sim</button><button id="confirmNo">Cancelar</button></div></div></div><script>
+document.addEventListener("DOMContentLoaded", () => {
+  const u = localStorage.getItem("usuario")||"", r = localStorage.getItem("registro")||"";
+  if(u||r) document.getElementById("usuarioExibido").textContent = `👤 ${u}${r?" / "+r:""}`;
+});
+
+function showAppModal({title="Aviso", message="", onOk=null}){
+  const ov = document.getElementById('appModalOverlay');
+  const t  = document.getElementById('appModalTitle');
+  const m  = document.getElementById('appModalMsg');
+  const ok = document.getElementById('appModalOk');
+  t.textContent = title; m.textContent = message; ov.style.display = 'flex';
+  const cleanup = () => { ov.style.display = 'none'; ok.onclick = null; if (onOk) try { onOk(); } catch(e){} };
+  ok.onclick = cleanup; ov.onclick = (e)=>{ if(e.target===ov) cleanup(); };
+}
+
+function showConfirmModal({title="Confirmação", message="", onYes=null, onNo=null}){
+  const ov = document.getElementById('confirmModalOverlay');
+  const t  = document.getElementById('confirmModalTitle');
+  const m  = document.getElementById('confirmModalMsg');
+  const yes= document.getElementById('confirmYes');
+  const no = document.getElementById('confirmNo');
+  t.textContent = title; m.textContent = message; ov.style.display = 'flex';
+  const cleanup = () => { ov.style.display = 'none'; yes.onclick = null; no.onclick = null; };
+  yes.onclick = ()=>{ cleanup(); if (onYes) try { onYes(); } catch(e){} };
+  no.onclick  = ()=>{ cleanup(); if (onNo)  try { onNo();  } catch(e){} };
+  ov.onclick  = (e)=>{ if(e.target===ov){ cleanup(); if(onNo) try{ onNo(); } catch(e){} } };
+}
+
+async 
+/* removido bloco duplicado finalizarTurno */
+
+
+async 
+/* removido exportarPlanilhaFinal duplicado */
+
+</script><script>
+// Checagem de bibliotecas (sem mexer no layout)
+function __p7_libsOk() {
+  const ok = typeof window.ExcelJS !== "undefined" && typeof window.saveAs !== "undefined";
+  if (!ok) {
+    let faltando = [];
+    if (typeof window.ExcelJS === "undefined") faltando.push("ExcelJS");
+    if (typeof window.saveAs === "undefined") faltando.push("FileSaver");
+    alert("Não foi possível carregar: " + faltando.join(", ") + ".\n\nVerifique sua internet ou o carregamento dos scripts no <head>.");
+  }
+  return ok;
+}
+
+function __p7_parseStorageOrEmpty(key) {
+  try {
+    const txt = localStorage.getItem(key);
+    if (!txt) return [];
+    const arr = JSON.parse(txt);
+    return Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    console.error("Falha ao ler", key, e);
+    return [];
+  }
+}
+
+function __p7_addWorksheetFromObjects(wb, sheetName, rows) {
+  const ws = wb.addWorksheet(sheetName);
+  if (!rows || rows.length === 0) {
+    ws.addRow(["Sem dados"]);
+    return;
+  }
+  const cols = Object.keys(rows[0]);
+  ws.addRow(cols);
+  const header = ws.getRow(1);
+  header.font = { bold: true };
+  header.alignment = { vertical: 'middle' };
+
+  for (const r of rows) {
+    ws.addRow(cols.map(c => r[c]));
+  }
+  cols.forEach((c, i) => {
+    let max = c.length;
+    rows.forEach(r => {
+      const val = r[c] == null ? "" : String(r[c]);
+      if (val.length > max) max = val.length;
+    });
+    ws.getColumn(i+1).width = Math.min(Math.max(10, max + 2), 60);
+  });
+}
+
+function __p7_formatNowForName() {
+  const d = new Date();
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth()+1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const HH = String(d.getHours()).padStart(2, "0");
+  const MM = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}-${mm}-${yyyy} - ${HH}h${MM}`;
+}
+
+// === Sobrescreve as funções originais sem alterar o visual ===
+
+/* removido bloco exportarPlanilhaFinal antigo */
+
+
+function finalizarTurnoLegacy() {
+  try {
+    const dadosChassi   = JSON.parse(localStorage.getItem('tabelaChassi') || '[]');
+    const dadosComissao = JSON.parse(localStorage.getItem('tabelaComissaoSeguro') || '[]');
+    const dadosQualidade = JSON.parse(localStorage.getItem('tabelaQualidade') || '[]');
+    const semDados = (!dadosChassi?.length) && (!dadosComissao?.length) && (!dadosQualidade?.length);
+if (semDados) {
+      if (typeof showAppModal === 'function') {
+        showAppModal({ title:'Atenção', message:'Não há dados para exportar.', onOk: ()=>{ location.href='index.html'; } });
+      } else {
+        alert('Não há dados para exportar.');
+        location.href='index.html';
+      }
+      return;
+    }
+
+    showConfirmModal({
+      title: 'Confirmação',
+      message: 'Tem certeza que deseja exportar dados e sair?',
+      onYes: async () => { await exportarPlanilhaFinal(dadosChassi, dadosComissao, dadosQualidade); },
+      onNo: () => {}
+    });
+  } catch (e) {
+    console.error(e);
+    if (typeof showAppModal === 'function') showAppModal({title:'Erro', message:'Erro ao processar a finalização.'});
+    else alert('Erro ao processar a finalização.');
+  }
+}
+</script><script>
+async 
+/* removido bloco exportarPlanilhaFinal antigo */
+
+</script><script>
+function trocarUsuario(){
+  if (typeof showConfirmModal === 'function'){
+    showConfirmModal({
+      title: 'Trocar usuário',
+      message: `Deseja trocar de usuário sem finalizar o turno?\n\nSe escolher "Sim", os dados atuais serão mantidos.`,
+      onYes: function(){ location.href = 'index.html'; },
+      onNo: function(){
+        if (typeof showAppModal === 'function'){
+          showAppModal({title:'Operação cancelada', message:'Dados preservados. Permanecendo no menu.'});
+        } else { alert('Operação cancelada, dados preservados.'); }
+      }
+    });
+  } else {
+    var manter = confirm('Deseja trocar de usuário mantendo os dados atuais?');
+    if (manter){ location.href = 'index.html'; }
+    else { alert('Operação cancelada, dados preservados.'); }
+  }
+}
+</script><script>
+async function exportarPlanilhaFinal(dadosChassi, dadosComissao, dadosQualidade){
+  if (!window.ExcelJS || !window.saveAs) {
+    if (typeof showAppModal === 'function') {
+      showAppModal({title:'Erro', message:'Bibliotecas ExcelJS/FileSaver não carregadas.'});
+    } else {
+      alert('Bibliotecas ExcelJS/FileSaver não carregadas.');
+    }
+    return;
+  }
+  try {
+    const wb = new ExcelJS.Workbook();
+
+    const addSheet = (name, rows) => {
+      const safeName = String(name||'').replace(/[\/?*\[\]:]/g,'-').slice(0,31);
+      const ws = wb.addWorksheet(safeName);
+      if (!Array.isArray(rows) || rows.length === 0) {
+        ws.addRow(['Sem dados']);
+        return;
+      }
+      const keys = [...new Set(rows.flatMap(r => Object.keys(r || {})))];
+      ws.addRow(keys);
+      ws.getRow(1).font = {bold:true};
+      rows.forEach(r => ws.addRow(keys.map(k => (r && r[k] != null) ? r[k] : '')));
+      keys.forEach((k,i) => {
+        let max = String(ws.getRow(1).getCell(i+1).value || '').length;
+        rows.forEach(r => { const t = r && r[k] != null ? String(r[k]) : ''; if (t.length > max) max = t.length; });
+        ws.getColumn(i+1).width = Math.min(Math.max(10, max + 2), 60);
+      });
+    };
+
+    // Abas individuais
+    addSheet('controle de veículos industrialização', dadosChassi);
+    addSheet('controle de veículos comissão de seguro', dadosComissao);
+    addSheet('controle de veículos qualidade', dadosQualidade);
+    addSheet('controle de veículos faturados / expedidos', dadosFaturados);
+
+    // Mestra (consolidado)
+    const tagged = [
+      ...(Array.isArray(dadosChassi)   ? dadosChassi   : []).map(r => ({ origem: 'Industrialização',    ...r })),
+      ...(Array.isArray(dadosComissao) ? dadosComissao : []).map(r => ({ origem: 'Comissão de Seguro',  ...r })),
+      ...(Array.isArray(dadosQualidade)? dadosQualidade: []).map(r => ({ origem: 'Qualidade / CI',      ...r })),
+    ];
+
+    if (tagged.length > 0) {
+      const preferred = ['origem','setor','turno','controlador','chassi','observacao','dataHora'];
+      const allKeys = [...new Set([...preferred, ...tagged.flatMap(r => Object.keys(r))])];
+      const wsM = wb.addWorksheet('Mestra (consolidado)');
+      // Cabeçalho
+      wsM.addRow(allKeys);
+      wsM.getRow(1).font = { bold: true };
+      // Linhas
+      tagged.forEach(r => wsM.addRow(allKeys.map(k => (r && r[k] != null) ? r[k] : '')));
+      // Largura automática
+      allKeys.forEach((k,i) => {
+        let max = String(wsM.getRow(1).getCell(i+1).value || '').length;
+        tagged.forEach(r => { const t = r && r[k] != null ? String(r[k]) : ''; if (t.length > max) max = t.length; });
+        wsM.getColumn(i+1).width = Math.min(Math.max(10, max + 2), 60);
+      });
+    }
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const d = new Date();
+    const nome = `Relatório - ${(localStorage.getItem('turno')||'Turno')} - ${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()} - ${String(d.getHours()).padStart(2,'0')}h${String(d.getMinutes()).padStart(2,'0')}.xlsx`;
+    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    saveAs(blob, nome);
+
+    try { localStorage.clear(); if (sessionStorage && sessionStorage.clear) sessionStorage.clear(); } catch(e){}
+    if (typeof showAppModal === 'function') {
+      showAppModal({ title:'Turno finalizado', message:'A planilha foi gerada e o turno foi finalizado.', onOk: ()=>{ location.href='index.html'; } });
+      setTimeout(()=>{ location.href='index.html'; }, 1500);
+    } else {
+      location.href = 'index.html';
+    }
+  } catch (e) {
+    console.error(e);
+    if (typeof showAppModal === 'function') showAppModal({title:'Erro', message:'Falha na geração da planilha.'});
+    else alert('Falha na geração da planilha.');
+  }
+}
+</script><script>
+</script><script>
+
+// ==== Overrides com "Obs." apenas no consolidado ====
+(function(){
+  function parseJSON(key){
+    try{ const t = localStorage.getItem(key); return t ? JSON.parse(t) : []; }catch(e){ return []; }
+  }
+  function haveLibs(){ return typeof ExcelJS !== 'undefined' && typeof saveAs !== 'undefined'; }
+  async function confirmWrap(title, message){
+    if (typeof showConfirmModal === 'function'){
+      return new Promise(resolve => {
+        showConfirmModal({title, message, onYes:()=>resolve(true), onNo:()=>resolve(false)});
+      });
+    }
+    return Promise.resolve(window.confirm((title?title+"\\n\\n":"")+message));
+  }
+  function alertWrap(title, message){
+    if (typeof showAppModal === 'function'){ showAppModal({title, message}); }
+    else alert((title?title+": ":"") + message);
+  }
+
+  // Trocar Usuário
+  window.trocarUsuario = function(){
+    try{
+      localStorage.removeItem('usuario');
+      localStorage.removeItem('registro');
+      localStorage.setItem('clearLoginOnce','1');
+      sessionStorage.removeItem('usuario');
+      sessionStorage.removeItem('registro');
+    }catch(e){ console.error(e); }
+    location.href = 'index.html?logout=1';
+  };
+
+  // Finalizar Turno
+  window.finalizarTurno = async function(){
+    try{
+      const dadosChassi    = parseJSON('tabelaChassi');
+      const dadosComissao  = parseJSON('tabelaComissaoSeguro');
+      const dadosQualidade = parseJSON('tabelaQualidade');
+      const dadosFaturados = parseJSON('tabelaFaturadosExpedidos');
+      const semDados = (!dadosChassi.length) && (!dadosComissao.length) && (!dadosQualidade.length) && (!dadosFaturados.length);
+      if (semDados){
+        alertWrap('Atenção','Não há dados para exportar.');
+        
+        try{
+          const __keys=['usuario','registro','turno','tabelaChassi','tabelaComissaoSeguro','tabelaQualidade','tabelaFaturadosExpedidos','controleVeiculosData','controle_industrializacao_estado','controle_faturados_expedidos_estado','draftChassi','draftControlador','draftObs','senhaOutrasInfos'];
+          __keys.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} try{ sessionStorage.removeItem(k); }catch(e){} });
+        }catch(e){}
+        location.replace('index.html');
+        return;
+      }
+      const ok = await confirmWrap('Confirmação','Tem certeza que deseja exportar dados e sair?');
+      if (!ok) return;
+      await window.exportarPlanilhaFinal(dadosChassi, dadosComissao, dadosQualidade, dadosFaturados);
+    }catch(e){
+      console.error(e);
+      alertWrap('Erro','Erro ao processar a finalização.');
+    }
+  };
+
+  // Exportar planilha final
+  window.exportarPlanilhaFinal = async function(dadosChassi, dadosComissao, dadosQualidade, dadosFaturados){
+    if (!haveLibs()){ alertWrap('Erro','Bibliotecas ExcelJS/FileSaver não carregadas.'); return; }
+    const wb = new ExcelJS.Workbook();
+
+    const displayName = (key) => ({
+      setor: 'Setor',
+      turno: 'Turno',
+      controlador: 'Controlador de acesso',
+      controladorAcesso: 'Controlador de acesso',
+      chassi: 'Número de chassi',
+      numeroChassi: 'Número de chassi',
+      observacao: 'Observação',
+      dataHora: 'Data e Hora',
+      origem: 'Tipo de controle'
+    }[key] || key);
+
+    function addSheet(name, rows){
+      const ws = wb.addWorksheet(name);
+      if (!Array.isArray(rows) || rows.length === 0){
+        ws.addRow(['Sem dados']);
+        ws.getRow(1).eachCell((cell)=>{
+          cell.font = { bold:true, color:{argb:'FF000000'} };
+          cell.alignment = { vertical:'middle', horizontal:'center' };
+          cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'} };
+        });
+        ws.protect('', { selectLockedCells:true, selectUnlockedCells:true });
+        return;
+      }
+      const keys = [...new Set(rows.flatMap(r => Object.keys(r||{})))];
+      const normKeys = keys.map(k => {
+        if (k==="controladorAcesso") return "controlador";
+        if (k==="numeroChassi") return "chassi";
+        return k;
+      });
+      const uniqueKeys = [...new Set(normKeys)];
+      const headerLabels = uniqueKeys.map(k => String(displayName(k)).toUpperCase());
+      ws.addRow(headerLabels);
+      ws.getRow(1).eachCell((cell)=>{
+        cell.font = { bold:true, color:{argb:'FF000000'} };
+        cell.alignment = { vertical:'middle', horizontal:'center' };
+        cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'} };
+      });
+      rows.forEach(r => ws.addRow(uniqueKeys.map(k => {
+        if (k==="controlador") return r.controlador || r.controladorAcesso || "";
+        if (k==="chassi") return r.chassi || r.numeroChassi || "";
+        return r[k] != null ? r[k] : "";
+      })));
+      headerLabels.forEach((label, i) => {
+        let max = String(label||'').length;
+        rows.forEach(r => {
+          const t = r && (r[uniqueKeys[i]] || (uniqueKeys[i]==="controlador"?r.controladorAcesso:"") || (uniqueKeys[i]==="chassi"?r.numeroChassi:"")) || "";
+          if (t.length > max) max = t.length;
+        });
+        ws.getColumn(i+1).width = max + 2;
+        ws.getColumn(i+1).alignment = { wrapText:true };
+      });
+      ws.protect('', { selectLockedCells:true, selectUnlockedCells:true });
+    }
+
+    addSheet('controle de veículos industrialização', dadosChassi);
+    addSheet('controle de veículos comissão de seguro', dadosComissao);
+    addSheet('controle de veículos qualidade', dadosQualidade);
+
+    // Mestra consolidada
+    const tagged = [
+      ...(Array.isArray(dadosChassi)    ? dadosChassi    : []).map(r => ({ origem:'Industrialização',   ...(r||{}) })),
+      ...(Array.isArray(dadosComissao)  ? dadosComissao  : []).map(r => ({ origem:'Comissão de Seguro', ...(r||{}) })),
+      ...(Array.isArray(dadosQualidade) ? dadosQualidade : []).map(r => ({ origem:'Qualidade',          ...(r||{}) })),
+      ...(Array.isArray(dadosFaturados) ? dadosFaturados : []).map(r => ({ origem:'Faturados / Expedidos', ...(r||{}) })),
+    ];
+    const allKeys = ['origem','setor','turno','controlador','chassi','observacao','dataHora'];
+    const wsM = wb.addWorksheet('Mestra (consolidado)');
+    const headerLabels = allKeys.map(k => {
+      if (k === "observacao") return "OBS."; // Apenas no consolidado
+      return String(displayName(k)).toUpperCase();
+    });
+    wsM.addRow(headerLabels);
+    wsM.getRow(1).eachCell((cell)=>{
+      cell.font = { bold:true, color:{argb:'FF000000'} };
+      cell.alignment = { vertical:'middle', horizontal:'center' };
+      cell.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFFFF00'} };
+    });
+    tagged.forEach(r => wsM.addRow(allKeys.map(k => {
+      if (k==="controlador") return r.controlador || r.controladorAcesso || "";
+      if (k==="chassi") return r.chassi || r.numeroChassi || "";
+      return r[k] != null ? r[k] : "";
+    })));
+    headerLabels.forEach((label, i) => {
+      let max = String(label||'').length;
+      tagged.forEach(r => {
+        const t = r && (r[allKeys[i]] || (allKeys[i]==="controlador"?r.controladorAcesso:"") || (allKeys[i]==="chassi"?r.numeroChassi:"")) || "";
+        if (t.length > max) max = t.length;
+      });
+      wsM.getColumn(i+1).width = max + 2;
+      wsM.getColumn(i+1).alignment = { wrapText:true };
+    });
+    wsM.protect('', { selectLockedCells:true, selectUnlockedCells:true });
+
+    const d = new Date();
+    const turnoNome = (localStorage.getItem('turno') || 'Turno');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const yyyy = d.getFullYear();
+    const HH = String(d.getHours()).padStart(2,'0');
+    const MM = String(d.getMinutes()).padStart(2,'0');
+    const fileName = `Relatório - ${turnoNome} - ${dd}-${mm}-${yyyy} - ${HH}h${MM}.xlsx`;
+
+    const buf = await wb.xlsx.writeBuffer();
+    saveAs(new Blob([buf], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), fileName);
+
+    
+        try{
+          const __keys=['usuario','registro','turno','tabelaChassi','tabelaComissaoSeguro','tabelaQualidade','tabelaFaturadosExpedidos','controleVeiculosData','controle_industrializacao_estado','controle_faturados_expedidos_estado','draftChassi','draftControlador','draftObs','senhaOutrasInfos'];
+          __keys.forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} try{ sessionStorage.removeItem(k); }catch(e){} });
+        }catch(e){}
+    location.replace('index.html');
+  };
+})();
+
+</script><script>
+function trocarUsuario(){
+  showConfirmModal({
+    title: 'Trocar usuário',
+    message: 'Deseja trocar de usuário sem finalizar o turno?\n\nSe escolher "Sim", faremos logout e você voltará ao login. Os dados das tabelas serão mantidos, mas Usuário/Registro serão apagados.',
+    onYes: function(){
+      try {
+        localStorage.removeItem('usuario');
+        localStorage.removeItem('registro');
+        localStorage.removeItem('turno');
+      } catch (e) {}
+      location.href = 'index.html';
+    },
+    onNo: function(){
+      if (typeof showAppModal === 'function'){
+        showAppModal({
+          title:'Operação cancelada',
+          message:'Dados preservados. Permanecendo no menu.'
+        });
+      } else {
+        alert('Operação cancelada, dados preservados.');
+      }
+    }
+  });
+}
+</script></body></html>
