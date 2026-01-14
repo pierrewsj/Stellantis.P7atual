@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><title>Login - Stellantis</title><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/><style>
+    :root {
+      --cor-fundo: #0b1d30;
+      --cor-caixa: #1c2b3d;
+      --cor-primaria: #00d2ff;
+      --cor-texto: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    select { padding: 0.5rem; border: 1px solid var(--cor-primaria); border-radius: 8px; background: var(--cor-caixa); color: var(--cor-texto); font-size: 1rem; outline: none; transition: all 0.3s ease; }
+    body {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      background-color: var(--cor-fundo);
+      background-image: radial-gradient(circle at top left, #1b2735, #090a0f);
+      color: var(--cor-texto);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .container {
+      background: rgba(28,43,61,0.95);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,210,255,0.15), inset 0 0 10px rgba(0,210,255,0.05);
+      text-align: center;
+      width: 100%;
+      max-width: 360px;
+      animation: fadeInUp 0.6s ease-in-out;
+    }
+    h1 {
+      font-size: 1.8rem;
+      letter-spacing: 6px;
+      background: linear-gradient(90deg, var(--cor-primaria), #3a7bd5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(0,210,255,0.5);
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--cor-primaria);
+      opacity: 0.85;
+      margin-bottom: 1.5rem;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    label {
+      text-align: left;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    input {
+      padding: 0.5rem;
+      border: 1px solid var(--cor-primaria);
+      border-radius: 8px;
+      background: var(--cor-caixa);
+      color: var(--cor-texto);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    button {
+      background: linear-gradient(135deg, #3a7bd5, var(--cor-primaria));
+      color: var(--cor-texto);
+      border: none;
+      padding: 0.75rem;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0,210,255,0.3);
+      transition: all 0.3s ease-in-out;
+      animation: glowPulse 1.8s infinite alternate;
+    }
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(0,210,255,0.45);
+    }
+    .mensagem {
+      background: var(--cor-primaria);
+      padding: 0.75rem;
+      margin-top: 1rem;
+      border-radius: 10px;
+      color: #000;
+      display: none;
+      animation: fadeOut 2.5s ease forwards;
+    }
+    @keyframes glowPulse {
+      from { box-shadow: 0 0 6px rgba(0,210,255,0.3); }
+      to   { box-shadow: 0 0 10px rgba(0,210,255,0.45); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { opacity: 0; display: none; }
+    }
+  </style><style>
+:root {
+  --cor-fundo: #0b1d30;
+  --cor-caixa: #1c2b3d;
+  --cor-primaria: #00d2ff;
+  --cor-texto: #ffffff;
+  --cor-secundaria: #FFA726;
+}
+button:hover,
+.btn-primary:hover {
+  background: var(--cor-secundaria) !important;
+  box-shadow: 0 4px 12px rgba(255,167,38,0.4);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+#toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--cor-secundaria);
+  color: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  animation: slideIn 0.4s ease-out, fadeOut 0.4s ease-in 2.6s forwards;
+  pointer-events: auto;
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-10px); }
+}
+</style><link rel="stylesheet" href="style.css"><script src="common.js"></script><script>
+// Camada simples para dificultar cópia (não é segurança real)
+(function(){
+  // Bloqueia menu de contexto (botão direito)
+  document.addEventListener('contextmenu', e => e.preventDefault(), {capture:true});
+  // Bloqueia atalhos comuns (Ctrl+S, Ctrl+U, F12, Ctrl+Shift+I/J, PrintScreen tentativa)
+  document.addEventListener('keydown', function(e){
+    const k = e.key.toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (k === 'f12') { e.preventDefault(); e.stopPropagation(); return; }
+    if (ctrl && ['s','u','p','c','a','j','i'].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+    if (e.shiftKey && ctrl && ['i','j','c'].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+  }, {capture:true});
+  // Tentativa leve de detectar DevTools (falso-positivo é possível)
+  let opened = false;
+  setInterval(function(){
+    const threshold = 160; // largura/altura típica das DevTools
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold){
+      if (!opened){
+        opened = true;
+        console.warn('DevTools detectado. Algumas ações podem ser limitadas.');
+      }
+    }
+  }, 1200);
+})();
+</script>
+<style id="layout-sync-all">
+.container{max-width:360px !important;width:100% !important;margin:0 auto !important;}
+.container>h2{margin-bottom:1rem !important;}
+</style>
+
+
+<style id="title-font-fix">
+.container > h2 { font-size: 1rem !important; }
+</style>
+
+<style id="layout-sync-desktop">
+  /* For desktop harmony across pages */
+  @media (min-width: 768px) {
+    .container{
+      max-width: 960px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+    }
+  }
+</style>
+</head><body><div class="container" style="max-width:360px !important;width:100% !important;margin:0 auto !important;"><h1><img src="logo_stellantis.png" alt="Stellantis" style="max-width:240px; height:auto; display:block; margin:0 auto;"></h1><h2 style="margin-bottom:1rem !important;">Segurança Patrimonial</h2><form onsubmit="login(event)"><label for="usuario">Usuário:</label><input id="usuario" name="usuario" required="" type="text"/><label for="registro">Registro:</label><input id="registro" name="registro" required="" type="text"/><label for="turnoLogin">Turno:</label><select id="turnoLogin" name="turno" required="" style="width: 100%;"><option value="" disabled selected hidden>Selecione o turno</option><option value="Alpha">Alpha</option><option value="Bravo">Bravo</option><option value="Charlie">Charlie</option><option value="Delta">Delta</option></select><button type="submit">🔐 Entrar</button><div class="mensagem" id="msgSucesso">Salvo com sucesso!</div></form></div><script>
+    function login(e) {
+      e.preventDefault();
+      const usuario = document.getElementById('usuario').value.trim();
+      const registro = document.getElementById('registro').value.trim();
+      const turno = document.getElementById('turnoLogin').value;
+localStorage.setItem('usuario', usuario);
+      localStorage.setItem('registro', registro);
+      localStorage.setItem('turno', turno);
+      document.getElementById("msgSucesso").style.display = "block";
+      setTimeout(() => window.location.href = 'interface_principal.html', 1500);
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const u = localStorage.getItem("usuario"), r = localStorage.getItem("registro");
+      if(u) document.getElementById("usuario").value = u;
+      if(r) document.getElementById("registro").value = r;
+    });
+  </script><script>
+function showToast(message, duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.addEventListener('animationend', () => toast.remove());
+    toast.style.animation = 'fadeOut 0.4s ease-in forwards';
+  }, duration);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      // substituir lógica real aqui
+      const sucesso = true; // ou false conforme validação
+      if (sucesso) {
+        showToast('Ação realizada com sucesso!');
+      } else {
+        showToast('Ocorreu um erro. Tente novamente.');
+      }
+    });
+  });
+});
+
+window.addEventListener('beforeunload', function(){
+  try{
+    const usuario = document.getElementById('usuario')?.value?.trim() || '';
+    const registro = document.getElementById('registro')?.value?.trim() || '';
+    const turno = document.getElementById('turnoLogin')?.value || '';
+    if (usuario) localStorage.setItem('usuario', usuario);
+    if (registro) localStorage.setItem('registro', registro);
+    if (turno) localStorage.setItem('turno', turno);
+  }catch(e){}
+});
+</script></body></html>
